@@ -17,7 +17,7 @@ class AmazonScraper:
         self.session.headers['Connection'] = 'keep-alive'
         self.session.headers['Upgrade-Insecure-Requests'] = '1'
 
-    def scrapeReviews(self, url, page_num, filter_by='recent'):
+    def scrapeReviews(self, url, page_num, filter_by='recent', star = "critical"):
         """
         args
             filter_by: recent or helpful
@@ -26,7 +26,7 @@ class AmazonScraper:
         """
         try:
             review_url = re.search('^.+(?=\/)', url).group()
-            review_url = review_url + '?reviewerType=all_reviews&sortBy={0}&pageNumber={1}'.format(filter_by, page_num)
+            review_url = review_url + '?reviewerType=all_reviews&sortBy={0}&reviewerType=avp_only_reviews&filterByStar={1}&pageNumber={2}'.format(filter_by, star, page_num)
             print('Processing {0}...'.format(review_url))
             response = self.session.get(review_url)
 
