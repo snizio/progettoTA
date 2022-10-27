@@ -47,19 +47,20 @@ def vectors_creator(data_dict, normalize = True):
         bigram_scores[k] = {}
         
         for w in set(data_dict[k]["tokens"]):
-            if global_tokens_freq[w] > 3:
+            if global_tokens_freq[w] > 10:
                 p = data_dict[k]["freq"][w]/len(data_dict[k]["tokens"])
                 p_category = data_dict[k]["freq"][w]/global_tokens_freq[w]
                 h = -math.log2(p)
-                score = h * p_category * p
-                word_scores[k][w] = score
+                score = p_category
+                word_scores[k][w] = score * h * p
 
         for bigram in set(data_dict[k]["bigrams"]):
-            p = data_dict[k]["bigrams_freq"][bigram]/len(data_dict[k]["bigrams"])
-            p_category = data_dict[k]["bigrams_freq"][bigram]/global_bigrams_freq.get(bigram, 1)
-            h = -math.log2(p)
-            score = p_category * p
-            bigram_scores[k][bigram] = score
+            if global_bigrams_freq[bigram] > 1:
+                p = data_dict[k]["bigrams_freq"][bigram]/len(data_dict[k]["bigrams"])
+                p_category = data_dict[k]["bigrams_freq"][bigram]/global_bigrams_freq.get(bigram, 1)
+                h = -math.log2(p)
+                score = p_category
+                bigram_scores[k][bigram] = score * h * p
 
     if normalize:
         
@@ -104,22 +105,22 @@ def predict(test_list, trained_dic_w, trained_dic_bi, add_bigram = True, only_bi
                 score[k] = 0
                 for bi in bigrams:
                     val = trained_dic_bi[k].get(bi, 0)
-                    #h = - math.log2(bigrams_freq[bi]/len(bigrams))
-                    score[k]+=val
+                    h = - math.log2(bigrams_freq[bi]/len(bigrams))
+                    score[k]+=val * h
         else:
             for k in trained_dic_w:
                 score[k] = 0
                 for w in clean_tokens:
                     val = trained_dic_w[k].get(w, 0)
-                    #h = - math.log2(freq[w]/len(clean_tokens))
-                    score[k]+= val
+                    h = - math.log2(freq[w]/len(clean_tokens))
+                    score[k]+= val * h
             
             if add_bigram:
                 for k in trained_dic_bi:
                     for bi in bigrams:
                         val = trained_dic_bi[k].get(bi, 0)
-                        # h = - math.log2(bigrams_freq[bi]/len(bigrams))
-                        score[k]+=val
+                        h = - math.log2(bigrams_freq[bi]/len(bigrams))
+                        score[k]+=val * h
 
         predicted_label = max(score, key=score.get)
         predicted_list.append(predicted_label)
