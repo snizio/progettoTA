@@ -166,8 +166,7 @@ def drop_positive_duplicates(dataset):
         
     df_no_duplicates = dataset.drop_duplicates(subset="verified_reviews")
     index_positive = list(dataset[dataset["feedback"] == 1].index)
-    dataset.drop(labels=index_positive, inplace = True)
-    dataset = pd.concat([dataset, df_no_duplicates])
+    dataset = pd.concat([dataset.drop(labels=index_positive), df_no_duplicates])
 
     return dataset
 
