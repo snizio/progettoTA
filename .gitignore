@@ -2,4 +2,4 @@
 __pycache__/
 
 # pretrained embeddings
-w2vPreTrained
+glove-twitter-25.txt
