@@ -15,45 +15,45 @@ from gensim.models import KeyedVectors
 custom_stopwords = ['echo', 'alexa', "alexia", 'dot', "star", 'amazon', 'prime', '2nd', 'generation', "fire", "stick", "firestick", "skype", "facetime", '1st', '3rd', '4th', '5th', "hub", "hulu", 'google', 'netflix', "sony", 'youtube', 'philip', 'tp-link', 'fourth', 'roku', "siri", 'i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', "you're", "you've", "you'll", "you'd", 'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', "she's", 'her', 'hers', 'herself', 'it', "it's", 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', 'which', 'who', 'whom', 'this', 'that', "that'll", 'these', 'those', 'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'between', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from', 'up', 'down', 'in', 'out', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'nor', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don', "...", 'should', "should've", 'now', 'd', 'll', 'm', 'o', 're', 've', 'y', 'ain', 'aren', "aren't", 'couldn', 'didn', 'doesn', 'hadn', 'hasn', 'haven', 'isn', 'ma', 'mightn', "mightn't", 'mustn', "mustn't", 'needn', "needn't", 'shan', "shan't", 'shouldn', 'wasn', 'weren', 'won', 'wouldn']
 pos_list = ["JJ", "JJR", "JJS", "RB", "RBR", "RBS", "VB", "VBD", "VBG", "VBN", "VBP", "VBZ"] # lista di pos utilizzate per eventualmente filtrare durante la tokenizzazione
 
-def negation_handler(sentence):	
+# def negation_handler(sentence):	
 
-    """Handle negations using WordNet. See https://github.com/UtkarshRedd/Negation_handling for a clear explenation."""
+#     """Handle negations using WordNet. See https://github.com/UtkarshRedd/Negation_handling for a clear explenation."""
 
-    temp = int(0)
-    for i in range(len(sentence)):
-        if sentence[i-1] in ['not',"n't", "no", "without", "t"]:
-            antonyms = []
-            antonym_found = False
-            for syn in wordnet.synsets(sentence[i]):
-                syns = wordnet.synsets(sentence[i])
-                w1 = syns[0].name()
-                temp = 0
-                for l in syn.lemmas():
-                    if l.antonyms():
-                        antonyms.append(l.antonyms()[0].name())
-                max_dissimilarity = 0
-                for ant in antonyms:
-                    syns = wordnet.synsets(ant)
-                    w2 = syns[0].name()
-                    syns = wordnet.synsets(sentence[i])
-                    w1 = syns[0].name()
-                    word1 = wordnet.synset(w1)
-                    word2 = wordnet.synset(w2)
-                    if isinstance(word1.wup_similarity(word2), float) or isinstance(word1.wup_similarity(word2), int):
-                        temp = 1 - word1.wup_similarity(word2)
-                    if temp>max_dissimilarity:
-                        max_dissimilarity = temp
-                        antonym_max = ant
-                        sentence[i] = antonym_max
-                        sentence[i-1] = ''
-                        antonym_found = True
-            if not antonym_found:
-                sentence[i] = f"{sentence[i-1]}_{sentence[i]}"
-                sentence[i-1] = ''
+#     temp = int(0)
+#     for i in range(len(sentence)):
+#         if sentence[i-1] in ['not',"n't", "no", "without", "t"]:
+#             antonyms = []
+#             antonym_found = False
+#             for syn in wordnet.synsets(sentence[i]):
+#                 syns = wordnet.synsets(sentence[i])
+#                 w1 = syns[0].name()
+#                 temp = 0
+#                 for l in syn.lemmas():
+#                     if l.antonyms():
+#                         antonyms.append(l.antonyms()[0].name())
+#                 max_dissimilarity = 0
+#                 for ant in antonyms:
+#                     syns = wordnet.synsets(ant)
+#                     w2 = syns[0].name()
+#                     syns = wordnet.synsets(sentence[i])
+#                     w1 = syns[0].name()
+#                     word1 = wordnet.synset(w1)
+#                     word2 = wordnet.synset(w2)
+#                     if isinstance(word1.wup_similarity(word2), float) or isinstance(word1.wup_similarity(word2), int):
+#                         temp = 1 - word1.wup_similarity(word2)
+#                     if temp>max_dissimilarity:
+#                         max_dissimilarity = temp
+#                         antonym_max = ant
+#                         sentence[i] = antonym_max
+#                         sentence[i-1] = ''
+#                         antonym_found = True
+#             if not antonym_found:
+#                 sentence[i] = f"not_{sentence[i]}"
+#                 sentence[i-1] = ''
 
-    while '' in sentence:
-        sentence.remove('')
-    return sentence
+#     while '' in sentence:
+#         sentence.remove('')
+#     return sentence
 
 
 
@@ -75,7 +75,88 @@ def get_wordnet_pos(treebank_tag):
         return "n"
         
 
-def tokenize_list_of_text(list_of_text, custom_stopwords = [], pos_filter = False, pos_list = [], token_len = 2):
+# def tokenize_list_of_text(list_of_text, custom_stopwords = [], pos_filter = False, pos_list = [], token_len = 2):
+#     """Tokenizza tutte le recensioni, pulisce da stopwords, elimina token <= token_len caratteri e lemmatizza.
+#     Ritorna sia il la lista tokenizzata ma come stringa sia come lista di tokens, dunque ritorna due elementi"""
+
+#     lemmatizer = nltk.WordNetLemmatizer()
+#     detokenizer = TreebankWordDetokenizer()
+
+#     tokenized_reviews = []
+#     sent_tokenized_reviews = []
+#     for review in list_of_text: #pulisce le recensioni
+#         review = re.sub(r'\d+', '', review) # elimina i numeri
+#         review = re.sub(r'[^\w\s\']+', ' ', review) # sostituisce la punteggiatura con uno spazio
+#         tokens = nltk.tokenize.word_tokenize(review, language='english', preserve_line=False) # tokenizza
+#         tokens = [w.lower() for w in tokens] # mette in minuscolo
+#         tokens_pos = pos_tag(tokens) # pos tagging
+#         lemmatized_tokens = [(lemmatizer.lemmatize(w, get_wordnet_pos(pos)), pos) for w, pos in tokens_pos] # lemmatizza in base al pos tag
+#         if pos_filter: # se si vuole filtrare per la lista di pos
+#             clean_tokens = [w for w, pos in lemmatized_tokens if w not in string.punctuation and pos in pos_list]
+#         else:
+#             clean_tokens = [w for w, pos in lemmatized_tokens if w not in string.punctuation]
+#         clean_tokens = negation_handler(clean_tokens) # gestisce le negazioni, vedi funzione
+#         clean_tokens = [w for w in clean_tokens if len(w)>token_len and w not in custom_stopwords]
+#         if clean_tokens == []:
+#             clean_tokens = tokens
+#         sent_tokenized_reviews.append(clean_tokens)
+#         tokenized_reviews.append(detokenizer.detokenize(clean_tokens))
+    
+#     # questo viene fatto solo per estrarre il numero di parole tipo estratte
+#     n_tokens = []
+#     for sent in sent_tokenized_reviews:
+#         for w in sent:
+#             n_tokens.append(w)
+#     print("total number of types extracted is:", len(set(n_tokens)))
+
+#     return tokenized_reviews,  sent_tokenized_reviews # ritorna una tupla, il primo elemento contiene le recensioni in formato stringa, il secondo le continene tokenizzate
+
+def negation_handler(sentence):	
+
+    """Handle negations using WordNet. See https://github.com/UtkarshRedd/Negation_handling for a clear explenation."""
+
+    temp = int(0)
+    lemmatizer = nltk.WordNetLemmatizer()
+    for i in range(len(sentence)):
+        if sentence[i-1] in ['not',"n't", "no", "without", "t"]:
+            w = sentence[i]
+            pos_w = pos_tag([w])[0]
+            w_lemm = lemmatizer.lemmatize(pos_w[0], get_wordnet_pos(pos_w[1]))
+            antonyms = []
+            antonym_found = False
+            for syn in wordnet.synsets(w_lemm):
+                syns = wordnet.synsets(w_lemm)
+                w1 = syns[0].name()
+                temp = 0
+                for l in syn.lemmas():
+                    if l.antonyms():
+                        antonyms.append(l.antonyms()[0].name())
+                max_dissimilarity = 0
+                for ant in antonyms:
+                    syns = wordnet.synsets(ant)
+                    w2 = syns[0].name()
+                    syns = wordnet.synsets(w_lemm)
+                    w1 = syns[0].name()
+                    word1 = wordnet.synset(w1)
+                    word2 = wordnet.synset(w2)
+                    if isinstance(word1.wup_similarity(word2), float) or isinstance(word1.wup_similarity(word2), int):
+                        temp = 1 - word1.wup_similarity(word2)
+                    if temp>max_dissimilarity:
+                        max_dissimilarity = temp
+                        antonym_max = ant
+                        sentence[i] = antonym_max
+                        sentence[i-1] = ''
+                        antonym_found = True
+            if not antonym_found:
+                sentence[i] = f"not_{w_lemm}"
+                sentence[i-1] = ''
+
+    while '' in sentence:
+        sentence.remove('')
+    return sentence
+
+
+def tokenize_list_of_text(list_of_text, custom_stopwords = [], pos_tagging = False, token_len = 2):
     """Tokenizza tutte le recensioni, pulisce da stopwords, elimina token <= token_len caratteri e lemmatizza.
     Ritorna sia il la lista tokenizzata ma come stringa sia come lista di tokens, dunque ritorna due elementi"""
 
@@ -89,13 +170,15 @@ def tokenize_list_of_text(list_of_text, custom_stopwords = [], pos_filter = Fals
         review = re.sub(r'[^\w\s\']+', ' ', review) # sostituisce la punteggiatura con uno spazio
         tokens = nltk.tokenize.word_tokenize(review, language='english', preserve_line=False) # tokenizza
         tokens = [w.lower() for w in tokens] # mette in minuscolo
+        tokens = negation_handler(tokens) # gestisce le negazioni, vedi funzione
         tokens_pos = pos_tag(tokens) # pos tagging
         lemmatized_tokens = [(lemmatizer.lemmatize(w, get_wordnet_pos(pos)), pos) for w, pos in tokens_pos] # lemmatizza in base al pos tag
-        if pos_filter: # se si vuole filtrare per la lista di pos
-            clean_tokens = [w for w, pos in lemmatized_tokens if w not in string.punctuation and len(w)>token_len and w not in custom_stopwords and pos in pos_list]
+        if pos_tagging: # se si vuole filtrare per la lista di pos
+            clean_tokens = [f"{w}_{pos}" for w, pos in lemmatized_tokens if w not in string.punctuation and len(w)>token_len and w not in custom_stopwords]
         else:
             clean_tokens = [w for w, pos in lemmatized_tokens if w not in string.punctuation and len(w)>token_len and w not in custom_stopwords]
-        clean_tokens = negation_handler(clean_tokens) # gestisce le negazioni, vedi funzione
+        if clean_tokens == []:
+            clean_tokens = tokens
         sent_tokenized_reviews.append(clean_tokens)
         tokenized_reviews.append(detokenizer.detokenize(clean_tokens))
     
@@ -107,6 +190,7 @@ def tokenize_list_of_text(list_of_text, custom_stopwords = [], pos_filter = Fals
     print("total number of types extracted is:", len(set(n_tokens)))
 
     return tokenized_reviews,  sent_tokenized_reviews # ritorna una tupla, il primo elemento contiene le recensioni in formato stringa, il secondo le continene tokenizzate
+
 
 def generate_samples(reviews, n = 150, pre_trained_model = None):
 
