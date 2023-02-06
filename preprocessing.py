@@ -55,7 +55,25 @@ pos_list = ["JJ", "JJR", "JJS", "RB", "RBR", "RBS", "VB", "VBD", "VBG", "VBN", "
 #         sentence.remove('')
 #     return sentence
 
+def frequency_cleaning(new_sent_tok, n):
+    
+    tot_tokens = []
 
+    for sent in new_sent_tok:
+        for tok in sent:
+            tot_tokens.append(tok)
+
+    freqs = nltk.FreqDist(tot_tokens)
+    cleaned_reviews = []
+
+    for sent in new_sent_tok:
+        clean_sent = []
+        for tok in sent:
+            if freqs[tok] > n:
+                clean_sent.append(tok)
+        cleaned_reviews.append(clean_sent)
+
+    return cleaned_reviews
 
 def get_wordnet_pos(treebank_tag):
     """
@@ -160,7 +178,7 @@ def tokenize_list_of_text(list_of_text, custom_stopwords = [], pos_tagging = Fal
     """Tokenizza tutte le recensioni, pulisce da stopwords, elimina token <= token_len caratteri e lemmatizza.
     Ritorna sia il la lista tokenizzata ma come stringa sia come lista di tokens, dunque ritorna due elementi"""
 
-    lemmatizer = nltk.WordNetLemmatizer()
+    lemmatizer = nltk.WordNetLemmatizer() 
     detokenizer = TreebankWordDetokenizer()
 
     tokenized_reviews = []
@@ -192,8 +210,8 @@ def tokenize_list_of_text(list_of_text, custom_stopwords = [], pos_tagging = Fal
     return tokenized_reviews,  sent_tokenized_reviews # ritorna una tupla, il primo elemento contiene le recensioni in formato stringa, il secondo le continene tokenizzate
 
 
-def generate_samples(reviews, n = 150, pre_trained_model = None):
-
+def generate_samples(reviews, n, pre_trained_model):
+    
     """Genera recensioni sintetiche. Ciò avviene sostituendo i token delle recensioni in input con i sinonimi più coerenti."
     Prende in input le recensioni tokenizzate e il numero di recensioni da generare (deve essere minore del numero di recensioni in input).
     La generazione usa wordnet per l'estrazione dei sinonimi e addestra un modello di w2v per calcolare la precisione dei sinonimi."""
@@ -205,11 +223,7 @@ def generate_samples(reviews, n = 150, pre_trained_model = None):
     reviews_to_sample = random.sample(reviews, n) # si fa un sample di n recensioni
     generated_reviews = []
 
-    # # si addestra w2v solo sulle recensioni di input alla funzione
-    if not pre_trained_model:
-        w2v_model_neg = Word2Vec(reviews, vector_size=100, window = 10, min_count = 0, sg=1, hs = 1, epochs= 100, seed = 5).wv
-    else:
-        w2v_model_neg = pre_trained_model
+    w2v = pre_trained_model.wv
 
     for review in reviews_to_sample:
         new_review = []
@@ -224,13 +238,16 @@ def generate_samples(reviews, n = 150, pre_trained_model = None):
             for word_sim in synonyms:
                 if word_sim != w and word_sim != "" and "_" not in word_sim:
                     try:
-                        score = w2v_model_neg.similarity(w, word_sim)
-                        sim_score[word_sim] = score
+                        score = w2v.similarity(w, word_sim)
+                        if score > 0.20:
+                            sim_score[word_sim] = score
                     except KeyError:
                         continue
             
             if sim_score:
                 new_review.append(max(sim_score, key=sim_score.get)) #si prende il sinonimo col punteggio maggiore
+            else:
+                new_review.append(w)
 
         if new_review and new_review != review:
             print(review)
@@ -240,26 +257,6 @@ def generate_samples(reviews, n = 150, pre_trained_model = None):
             generated_reviews.append(new_review)
 
     return generated_reviews
-
-def frequency_cleaning(new_sent_tok, n):
-    
-    tot_tokens = []
-
-    for sent in new_sent_tok:
-        for tok in sent:
-            tot_tokens.append(tok)
-
-    freqs = nltk.FreqDist(tot_tokens)
-    cleaned_reviews = []
-
-    for sent in new_sent_tok:
-        clean_sent = []
-        for tok in sent:
-            if freqs[tok] > n:
-                clean_sent.append(tok)
-        cleaned_reviews.append(clean_sent)
-
-    return cleaned_reviews
 
 
 # La pipeline standard:
