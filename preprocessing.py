@@ -1,3 +1,7 @@
+
+# Il file contiene funzioni di base utilizzate per il preprocessing
+
+
 import pandas as pd
 import nltk
 import string

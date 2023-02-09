@@ -1,3 +1,6 @@
+# Il file implementa una classe che consente di fare scraping di recensioni amazon
+
+
 import re
 from collections import namedtuple
 import requests
