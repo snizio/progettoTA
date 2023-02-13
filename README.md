@@ -12,7 +12,7 @@ Descrizione dei file:
 
 - "data_for_pt.csv": questo file contiene un altro dataset di circa 20000 recensioni Amazon Alexa estratto da noi facendo scraping. Questo ci ha permesso di usufruire di embedding pre-addestrati più coerenti al nostro contesto linguistico rispetto ad altri embedding pre-addestrati che abbiamo testato (i.e., google-300, glove_twitter_25, etc...).
 
-- "w2vPreTrained" e "w2vPreTrainedPOS": questi file contengono i modelli Word2Vec addestrati sul dataset "data_for_pt.csv". I parametri sono: window_size = 10, vector_size = 100 e skipgram. Il secondo file contiene gli embedding addestrati sui token annotati da part of speech (i.e., "love_VB")
+- "w2vPreTrained": questo file contiene un modello Word2Vec addestrato sul dataset "data_for_pt.csv". I parametri sono: window_size = 10, vector_size = 100 e skipgram. 
 
 - "NRC-Emotion-Lexicon-ForVariousLanguages.txt": il file contiene un lexicon usato nella parte non supervisionata.
 
