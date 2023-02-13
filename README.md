@@ -4,9 +4,11 @@ Descrizione dei file:
 
 - "amazon_alexa.tsv": il file contiene il dataset di recensioni Amazon Alexa sul quale è stata fatta sentiment analysis.
 
+- "preprocessing.py": il file contiene funzioni base per il preprocessing del testo, in particolare: tokenizzazione, negation_handling e generazione di recensioni artificiali.
+
 - "DataUnderstanding.ipynb": il file contiene un'analisi quantitativa del dataset.
 
-- "review_scraper" e "scraping_book": i file contengono le funzioni necessarie per lo scraping di recensioni Amazon.
+- "review_scraper.py" e "scraping_book.ipynb": i file contengono le funzioni necessarie per lo scraping di recensioni Amazon.
 
 - "data_for_pt.csv": questo file contiene un altro dataset di circa 20000 recensioni Amazon Alexa estratto da noi facendo scraping. Questo ci ha permesso di usufruire di embedding pre-addestrati più coerenti al nostro contesto linguistico rispetto ad altri embedding pre-addestrati che abbiamo testato (i.e., google-300, glove_twitter_25, etc...).
 
